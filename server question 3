@@ -1,0 +1,36 @@
+import socket
+import math
+
+def calculate_sphere_volume(radius):
+    volume = (4/3) * math.pi * radius**3
+    return volume
+
+def main():
+    server_host = '192.168.66.128'
+    server_port = 8080
+
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind((server_host, server_port))
+    server_socket.listen(1)
+
+    print(f"Server listening on {server_host}:{server_port}...")
+
+    client_socket, client_address = server_socket.accept()
+    print(f"Connection accepted from {client_address}")
+
+    radius_data = client_socket.recv(1024).decode()
+
+    try:
+        radius = float(radius_data)
+        volume = calculate_sphere_volume(radius)
+        volume_data = f"Volume of sphere with radius {radius} is: {volume}"
+    except ValueError:
+        volume_data = "Invalid radius value. Please provide a valid number."
+
+    client_socket.send(volume_data.encode())
+
+    client_socket.close()
+    server_socket.close()
+
+if __name__ == "__main__":
+    main()
